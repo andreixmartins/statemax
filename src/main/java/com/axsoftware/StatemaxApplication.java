@@ -7,18 +7,29 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.statemachine.StateMachine;
 
 @SpringBootApplication
-public class StatemaxApplication implements CommandLineRunner {
+public class StatemaxApplication implements CommandLineRunner{
 
-	@Autowired
-	private StateMachine<States, Events> stateMachine;
+    @Autowired
+    StateMachine<States, Events> choiceStateMachine;
+	
+//	@Autowired
+//	StateMachine<States, Events> simpleStateMachine;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(StatemaxApplication.class, args);
-	}	
+	}
 
 	@Override
 	public void run(String... arg0) throws Exception {
-	    stateMachine.sendEvent(Events.E1);
-	    stateMachine.sendEvent(Events.E2);
-	}
+
+//		simpleStateMachine.start();
+//		simpleStateMachine.sendEvent(Events.EVENT1);
+//		simpleStateMachine.sendEvent(Events.EVENT2);
+		
+		choiceStateMachine.start();
+		choiceStateMachine.sendEvent(Events.EVENT1);
+//		choiceStateMachine.sendEvent(Events.EVENT2);
+		
+	}	
+
 }

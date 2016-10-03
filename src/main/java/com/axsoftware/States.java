@@ -1,4 +1,5 @@
 package com.axsoftware;
 public enum States {
-    SI, S1, S2
+	SI, STATE1, STATE2, STATE3, STATE4, SF
 }
+
