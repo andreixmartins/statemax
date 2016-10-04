@@ -2,18 +2,18 @@ package com.axsoftware.config;
 
 import java.util.EnumSet;
 
-import org.springframework.context.annotation.Bean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.statemachine.StateContext;
 import org.springframework.statemachine.action.Action;
 import org.springframework.statemachine.config.EnableStateMachine;
 import org.springframework.statemachine.config.EnumStateMachineConfigurerAdapter;
 import org.springframework.statemachine.config.builders.StateMachineStateConfigurer;
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
-import org.springframework.statemachine.guard.Guard;
 
-import com.axsoftware.Events;
-import com.axsoftware.States;
+import com.axsoftware.component.GenerateFileComponent;
+import com.axsoftware.component.InvoiceFileComponent;
+import com.axsoftware.component.ReadDataFileComponent;
+import com.axsoftware.component.UploadFileComponent;
 import com.axsoftware.constants.FileEvents;
 import com.axsoftware.constants.FileStates;
 
@@ -22,82 +22,81 @@ import com.axsoftware.constants.FileStates;
 public class FileStateMachine extends EnumStateMachineConfigurerAdapter<FileStates, FileEvents> {
 
 	
+	@Autowired
+	private InvoiceFileComponent invoiceFileComponent;
+	
+	@Autowired
+	private ReadDataFileComponent readDataFileComponent;
+	
+	@Autowired
+	private GenerateFileComponent generateFileComponent;
+	
+	@Autowired
+	private UploadFileComponent uploadFileComponent;
+	
     @Override
     public void configure(StateMachineStateConfigurer<FileStates, FileEvents> states) throws Exception {
     	
         states
         	.withStates()
 	        	.initial(FileStates.WAITING)
-	        	.states(EnumSet.allOf(FileStates.class))
-	        	.choice(FileStates.UPLOADING)
-	        	.end(FileStates.FINISHING);
+	        	.end(FileStates.FINISHING)
+	        	.states(EnumSet.allOf(FileStates.class));
         
     }
 
     @Override
     public void configure(StateMachineTransitionConfigurer<FileStates, FileEvents> transitions) throws Exception {
-    	
-        transitions
-        	.withExternal()
-        	.source(FileStates.WAITING)
-        	.target(FileStates.BUILDING)
-        	.event(FileEvents.START)
-        	.guard(guardGerarArquivo())
-        	.and()
-        	.withChoice()
-	            .source(FileStates.UPLOADING)
-	            .first(States.STATE2, guard())
-	            .then(States.STATE3, guard2())
-	            .last(FileStates.FINISHING);
-    	
-    	
-    }
-    
-    @Bean
-    public Guard<FileStates, FileEvents> guardGerarArquivo() {
-        return new Guard<FileStates, FileEvents>() {
 
-            @Override
-            public boolean evaluate(StateContext<FileStates, FileEvents> context) {
-            	System.out.println(this.getClass().getName());
-            	System.out.println("FAZER ALGUMA COISA NO GUARD");
-                return false;
-            }
-        };
+    	
+    	transitions
+    		.withExternal()
+	    		.source(FileStates.WAITING)
+	    		.target(FileStates.BUILDING)
+	    		.event(FileEvents.START)
+	    		.action(build())
+//	    		.source(FileStates.BUILDING)
+	    		.target(FileStates.UPLOADING)
+	    		.event(FileEvents.START)
+	    		.action(generate());
+//		    	.source(FileStates.UPLOADING)
+//		    	.target(FileStates.CHECKING)
+//		    	.action(upload())
+//		    	.source(FileStates.UPLOADING)
+//		    	.target(FileStates.FINISHING)
+//		    	.action(upload());
+    	
+		    	
+    	
+//        transitions
+//        	.withExternal()
+//	        	.source(FileStates.WAITING)	
+//	        	.target(FileStates.BUILDING)
+//	        	.event(FileEvents.START)
+//	        	.action(generate())
+//	        	.and()
+//	        .withExternal()
+//	        	.source(FileStates.BUILDING)
+//	        	.target(FileStates.UPLOADING)
+//	        	.event(FileEvents.UPLOAD)
+//	        	.action(upload());
+	        	    
+    	
     }
     
-    @Bean
-    public Guard<States, Events> guard2() {
-    	return new Guard<States, Events>() {
-    		
-    		@Override
-    		public boolean evaluate(StateContext<States, Events> context) {
-    			System.out.println(this.getClass().getName());
-    			System.out.println("FAZER ALGUMA COISA NO GUARD 2");
-    			return true;
-    		}
-    	};
+    public Action<FileStates, FileEvents> build() {
+        return readDataFileComponent.execute();
     }
     
-    @Bean
-    public Action<States, Events> action() {
-        return new Action<States, Events>() {
-
-            @Override
-            public void execute(StateContext<States, Events> context) {
-                System.out.println("FAZER ALGUMA COISA");
-            }
-        };
+    public Action<FileStates, FileEvents> generate() {
+    	return generateFileComponent.execute();
     }
     
-    @Bean
-    public Action<States, Events> action2() {
-    	return new Action<States, Events>() {
-    		
-    		@Override
-    		public void execute(StateContext<States, Events> context) {
-    			System.out.println("FAZER ALGUMA COISA 2");
-    		}
-    	};
-    }	
+    public Action<FileStates, FileEvents> upload() {
+    	return uploadFileComponent.execute();
+    }
+    
+    public Action<FileStates, FileEvents> finish() {
+    	return invoiceFileComponent.execute();
+    }
 }

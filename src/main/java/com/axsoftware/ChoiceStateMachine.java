@@ -12,8 +12,8 @@ import org.springframework.statemachine.config.builders.StateMachineStateConfigu
 import org.springframework.statemachine.config.builders.StateMachineTransitionConfigurer;
 import org.springframework.statemachine.guard.Guard;
 
-@Configuration
-@EnableStateMachine
+//@Configuration
+//@EnableStateMachine
 public class ChoiceStateMachine extends EnumStateMachineConfigurerAdapter<States, Events> {
 
     @Override

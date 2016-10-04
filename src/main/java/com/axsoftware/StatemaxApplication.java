@@ -6,11 +6,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.statemachine.StateMachine;
 
+import com.axsoftware.constants.FileEvents;
+import com.axsoftware.constants.FileStates;
+
 @SpringBootApplication
 public class StatemaxApplication implements CommandLineRunner{
 
     @Autowired
-    StateMachine<States, Events> choiceStateMachine;
+    StateMachine<FileStates, FileEvents> fileStateMachine;
+    
+//    @Autowired
+//    StateMachine<States, Events> choiceStateMachine;
 	
 //	@Autowired
 //	StateMachine<States, Events> simpleStateMachine;
@@ -26,9 +32,13 @@ public class StatemaxApplication implements CommandLineRunner{
 //		simpleStateMachine.sendEvent(Events.EVENT1);
 //		simpleStateMachine.sendEvent(Events.EVENT2);
 		
-		choiceStateMachine.start();
-		choiceStateMachine.sendEvent(Events.EVENT1);
+//		choiceStateMachine.start();
+//		choiceStateMachine.sendEvent(Events.EVENT1);
 //		choiceStateMachine.sendEvent(Events.EVENT2);
+		
+		fileStateMachine.start();
+		fileStateMachine.sendEvent(FileEvents.START);
+
 		
 	}	
 
